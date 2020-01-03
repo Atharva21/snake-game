@@ -11,6 +11,7 @@ class Snake {
     }
     
     this.food = {};
+    this.updated = true;
     this.resetFood();
     
   }
@@ -20,48 +21,56 @@ class Snake {
     
     this.food = {
       x : val[0],
-      y : val[1]
+      y : val[1],
+      color : [random(100,255), random(100,255), random(100,255)]
     };
   }
   
   checkAvailable(x, y) {
-      if(this.head.x === x && this.head.y === y) return false;
-      for(let i=0;i<this.tail.length;i++) {
-        if(this.tail[i].x === x && this.tail[i].y === y) return false;
-      }
-      return true;
+    let foodDistance;
+    foodDistance = dist(x, y, this.head.x, this.head.y);
+    if(foodDistance < 1) return false;
+    for(let i=0;i<this.tail.length;i++) {
+      foodDistance = dist(x, y, this.tail[i].x, this.tail[i].y);
+      if(foodDistance < 1) return false;
+    }
+    return true;
   }
   
   pickLocation() {    
-    let x = floor(random(width/this.scl));
-    let y = floor(random(height/this.scl));
+    let x = floor(random(this.scl, width-this.scl)/this.scl);
+    let y = floor(random(this.scl, height-this.scl)/this.scl);
     while(!this.checkAvailable(x, y)) {
-      x = random(this.scl);
-      y = random(this.scl);
+      x = floor(random(this.scl, width-this.scl)/this.scl);
+      y = floor(random(this.scl, height-this.scl)/this.scl);
     }
     return [x, y];
   }
   
   handleEvent(key) {
     if(key == LEFT_ARROW) {
-      if(this.head.velX === 1) return;
+      if(this.head.velX === 1 || !this.updated) return;
       this.head.velY = 0;
       this.head.velX = -1;
+      this.updated = false;
     } 
     if(key == RIGHT_ARROW) {
-      if(this.head.velX === -1) return;
+      if(this.head.velX === -1 || !this.updated) return;
       this.head.velY = 0;
-      this.head.velX = 1;      
+      this.head.velX = 1; 
+      this.updated = false;     
     } 
     if(key == UP_ARROW) {
-      if(this.head.velY === 1) return;
+      if(this.head.velY === 1 || !this.updated) return;
       this.head.velY = -1;
-      this.head.velX = 0;     
+      this.head.velX = 0;    
+      this.updated = false; 
     } 
     if(key == DOWN_ARROW) {
-      if(this.head.velY === -1) return;
+      if(this.head.velY === -1 || !this.updated) return;
       this.head.velY = 1;
-      this.head.velX = 0;       
+      this.head.velX = 0;   
+      this.updated = false;    
     }
   }
   
@@ -78,10 +87,15 @@ class Snake {
     this.head.x += this.head.velX;
     this.head.y += this.head.velY;
     // testing.
-    if(this.head.x < 0) this.head.x = width/this.scl-1;
-    if(this.head.x >= width/this.scl) this.head.x = 0;
+    if(this.head.x < 0) this.head.x = width/this.scl;
+    if(this.head.x > width/this.scl) this.head.x = 0;
     if(this.head.y < 0) this.head.y = height/this.scl-1;
-    if(this.head.y >= height/this.scl) this.head.y = 0;
+    if(this.head.y > (height/this.scl)-1) this.head.y = 0;
+
+    this.head.x = floor(this.head.x);
+    this.head.y = floor(this.head.y);
+    
+    this.updated = true;
     return val;
   }
   
@@ -147,6 +161,7 @@ class Snake {
     for(let i=2;i<this.tail.length;i++) {
       let block = this.tail[i];
       if(x===block.x && y === block.y){
+        alert('Your score: '+(this.tail.length+1));
         return true;
       }
     }
@@ -164,6 +179,7 @@ class Snake {
     
     this.food = {};
     this.resetFood();
+    this.updated = true;
   }
   
   show() {
@@ -174,7 +190,7 @@ class Snake {
     }
     
     //show food.
-    fill(255, 0, 200);
+    fill(this.food.color);
     rect(this.food.x*this.scl, this.food.y*this.scl, this.scl, this.scl);
     
   }
