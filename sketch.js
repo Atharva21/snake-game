@@ -1,9 +1,11 @@
 let snake;
 
+alert('Use Arrow keys <- -> to start playing!!');
+
 function setup() {
-  createCanvas(400, 400);
-  snake = new Snake(10);
-  frameRate(10);
+  createCanvas(windowWidth, windowHeight);
+  snake = new Snake(50);
+  frameRate(12);
 }
 
 function draw() {
@@ -13,5 +15,6 @@ function draw() {
 }
 
 function keyPressed() {
+  // if(!gameBegun) gameBegun = true;
   snake.handleEvent(keyCode);
 }
